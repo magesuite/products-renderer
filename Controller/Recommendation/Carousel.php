@@ -35,21 +35,24 @@ class Carousel extends \Magento\Framework\App\Action\Action
     {
         $params = $this->getRequest()->getParams();
 
-        if(!isset($params['id']) or empty($params['id']) or !is_array($params['id'])) {
-            throw new \Magento\Framework\Exception\NotFoundException(__(''));
+        $data = [];
+        if(isset($params['id'])) {
+            $data['product_ids'] = $params['id'];
         }
 
-        $ids = $params['id'];
+        if(isset($params['skus'])) {
+            $data['skus'] =  implode(',', $params['skus']);
+        }
 
         $resultPage = $this->pageFactory->create();
 
         $component = $resultPage
             ->getLayout()
             ->createBlock(
-                \MageSuite\ContentConstructorFrontend\Block\Component::class, 'nosto-carousel', [
+                \MageSuite\ContentConstructorFrontend\Block\Component::class, '', [
                     'data' => [
                         'type' => 'product-carousel',
-                        'data' => ['product_ids' => $ids]
+                        'data' => $data
                     ]
                 ]
             )
