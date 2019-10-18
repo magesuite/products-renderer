@@ -13,16 +13,22 @@ class Carousel extends \Magento\Framework\App\Action\Action
      * @var \Magento\Framework\View\Result\PageFactory
      */
     protected $pageFactory;
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    protected $jsonFactory;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        \Magento\Framework\View\Result\PageFactory $pageFactory,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
     )
     {
         parent::__construct($context);
 
         $this->context = $context;
         $this->pageFactory = $pageFactory;
+        $this->jsonFactory = $jsonFactory;
     }
 
     /**
@@ -58,6 +64,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
             )
             ->toHtml();
 
-        $this->getResponse()->setBody($component);
+        $resultJson = $this->jsonFactory->create();
+        return $resultJson->setData(['content' => $component]);
     }
 }
