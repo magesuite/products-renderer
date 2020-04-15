@@ -44,8 +44,8 @@ class RelatedProductsResolver
     {
         $product = $this->initProduct($productId);
 
-        if (empty($product)) {
-            return null;
+        if (!$product) {
+            return false;
         }
 
         $relationMethod = $this->relationTypeMap[$relationType];
