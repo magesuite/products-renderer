@@ -1,6 +1,6 @@
 <?php
 
-namespace MageSuite\ProductsRenderer\Controller\Recommendation;
+namespace MageSuite\ProductsRenderer\Controller\Related;
 
 class Carousel extends \Magento\Framework\App\Action\Action
 {
@@ -17,17 +17,23 @@ class Carousel extends \Magento\Framework\App\Action\Action
      * @var \Magento\Framework\Controller\Result\JsonFactory
      */
     protected $jsonFactory;
+    /**
+     * @var \MageSuite\ProductsRenderer\Service\RelatedProductsResolver
+     */
+    protected $relatedProductsResolver;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver
     ) {
         parent::__construct($context);
 
         $this->context = $context;
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
+        $this->relatedProductsResolver = $relatedProductsResolver;
     }
 
     /**
@@ -41,12 +47,8 @@ class Carousel extends \Magento\Framework\App\Action\Action
         $params = $this->getRequest()->getParams();
 
         $data = [];
-        if (isset($params['id'])) {
-            $data['product_ids'] = $params['id'];
-        }
-
-        if (isset($params['skus'])) {
-            $data['skus'] = implode(',', $params['skus']);
+        if (isset($params['id']) && isset($params['relation_type'])) {
+            $data['product_ids'] = $this->relatedProductsResolver->getRelatedProductIds($params['id'], $params['relation_type']);
         }
 
         $resultPage = $this->pageFactory->create();
