@@ -29,23 +29,25 @@ class RelatedProductsResolver
 
     protected function initProduct($productId)
     {
-        if ($productId) {
-            $storeId = $this->storeManager->getStore()->getId();
-            try {
-                return $this->productRepository->getById($productId, false, $storeId);
-            } catch (NoSuchEntityException $e) {
-                return false;
-            }
+        if (!$productId) {
+            return false;
         }
-        return false;
+
+        $storeId = $this->storeManager->getStore()->getId();
+        
+        try {
+            return $this->productRepository->getById($productId, false, $storeId);
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
     }
 
     public function getRelatedProductIds($productId, $relationType)
     {
         $product = $this->initProduct($productId);
 
-        if (!$product) {
-            return false;
+        if (empty($product)) {
+            return null;
         }
 
         $relationMethod = $this->relationTypeMap[$relationType];
