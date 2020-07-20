@@ -46,16 +46,15 @@ class RelatedProductsResolver
     {
         $product = $this->initProduct($productId);
 
-        if (empty($product)) {
+        if (empty($product) || !isset($this->relationTypeMap[$relationType])) {
             return null;
         }
 
         $relationMethod = $this->relationTypeMap[$relationType];
-
         $relationProductIds = $product->$relationMethod();
 
         if (!empty($relationProductIds)) {
-            return implode(',', $relationProductIds);
+            return $relationProductIds;
         }
 
         return null;
