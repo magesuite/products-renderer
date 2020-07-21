@@ -22,11 +22,17 @@ class Carousel extends \Magento\Framework\App\Action\Action
      */
     protected $relatedProductsResolver;
 
+    /**
+     * @var \MageSuite\ProductsRenderer\Service\ProductCategoryUrlResolver
+     */
+    protected $productCategoryUrlResolver;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver
+        \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver,
+        \MageSuite\ProductsRenderer\Service\ProductCategoryUrlResolver $productCategoryUrlResolver
     ) {
         parent::__construct($context);
 
@@ -34,6 +40,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->relatedProductsResolver = $relatedProductsResolver;
+        $this->productCategoryUrlResolver = $productCategoryUrlResolver;
     }
 
     /**
@@ -44,15 +51,15 @@ class Carousel extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $params = $this->getRequest()->getParams();
-
+        $relatedProductIds = $this->getRelatedProductIds();
+        $categoryUrl = $this->getCategoryUrl($relatedProductIds);
         $data = [];
-        if (isset($params['id']) && isset($params['relation_type'])) {
-            $data['product_ids'] = $this->relatedProductsResolver->getRelatedProductIds($params['id'], $params['relation_type']);
+
+        if (!empty($relatedProductIds)) {
+            $data['product_ids'] = implode(',', $relatedProductIds);
         }
 
         $resultPage = $this->pageFactory->create();
-
         $component = $resultPage
             ->getLayout()
             ->createBlock(
@@ -66,8 +73,30 @@ class Carousel extends \Magento\Framework\App\Action\Action
                 ]
             )
             ->toHtml();
-
         $resultJson = $this->jsonFactory->create();
-        return $resultJson->setData(['content' => $component]);
+
+        return $resultJson->setData(['content' => $component, 'category_url' => $categoryUrl]);
+    }
+
+    protected function getRelatedProductIds()
+    {
+        $id = (string)$this->getRequest()->getParam('id');
+        $relationType = (string)$this->getRequest()->getParam('relation_type');
+
+        return $this->relatedProductsResolver->getRelatedProductIds(
+            $id,
+            $relationType
+        );
+    }
+
+    protected function getCategoryUrl(array $productIds)
+    {
+        if (empty($productIds)) {
+            return null;
+        }
+
+        $productId = reset($productIds);
+
+        return $this->productCategoryUrlResolver->getCategoryUrl($productId);
     }
 }
