@@ -13,26 +13,28 @@ class Carousel extends \Magento\Framework\App\Action\Action
      * @var \Magento\Framework\View\Result\PageFactory
      */
     protected $pageFactory;
+
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
      */
     protected $jsonFactory;
+
     /**
      * @var \MageSuite\ProductsRenderer\Service\RelatedProductsResolver
      */
     protected $relatedProductsResolver;
 
     /**
-     * @var \MageSuite\ProductsRenderer\Service\ProductCategoryUrlResolver
+     * @var \MageSuite\ProductsRenderer\Service\ProductCategoryResolver
      */
-    protected $productCategoryUrlResolver;
+    protected $productCategoryResolver;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver,
-        \MageSuite\ProductsRenderer\Service\ProductCategoryUrlResolver $productCategoryUrlResolver
+        \MageSuite\ProductsRenderer\Service\ProductCategoryResolver $productCategoryResolver
     ) {
         parent::__construct($context);
 
@@ -40,7 +42,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->relatedProductsResolver = $relatedProductsResolver;
-        $this->productCategoryUrlResolver = $productCategoryUrlResolver;
+        $this->productCategoryResolver = $productCategoryResolver;
     }
 
     /**
@@ -52,7 +54,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $relatedProductIds = $this->getRelatedProductIds();
-        $categoryUrl = $this->getCategoryUrl($relatedProductIds);
+        $category = $this->getCategory($relatedProductIds);
         $data = [];
 
         if (!empty($relatedProductIds)) {
@@ -75,7 +77,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
             ->toHtml();
         $resultJson = $this->jsonFactory->create();
 
-        return $resultJson->setData(['content' => $component, 'category_url' => $categoryUrl]);
+        return $resultJson->setData(['content' => $component, 'category' => $category]);
     }
 
     protected function getRelatedProductIds()
@@ -89,14 +91,22 @@ class Carousel extends \Magento\Framework\App\Action\Action
         );
     }
 
-    protected function getCategoryUrl(array $productIds)
+    protected function getCategory(array $productIds)
     {
         if (empty($productIds)) {
             return null;
         }
 
         $productId = reset($productIds);
+        $catagory = $this->productCategoryResolver->getCategory($productId);
 
-        return $this->productCategoryUrlResolver->getCategoryUrl($productId);
+        if ($catagory) {
+            return [
+                'url' => $catagory->getUrl(),
+                'name' => $catagory->getName()
+            ];
+        }
+
+        return null;
     }
 }
