@@ -2,7 +2,7 @@
 
 namespace MageSuite\ProductsRenderer\Service;
 
-class ProductCategoryUrlResolver
+class ProductCategoryResolver
 {
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory
@@ -16,13 +16,15 @@ class ProductCategoryUrlResolver
     }
 
     /**
-     * @param $productId
-     * @return string|null
+     * @param int $productId
+     * @param int|null $storeId
+     * @return \Magento\Catalog\Model\Category|null
      */
-    public function getCategoryUrl($productId, $storeId = null)
+    public function getCategory($productId, $storeId = null)
     {
         $categoryCollection = $this->categoryCollectionFactory->create();
         $categoryCollection->addIsActiveFilter()
+            ->addNameToResult()
             ->addUrlRewriteToResult();
 
         if ($storeId) {
@@ -42,6 +44,6 @@ class ProductCategoryUrlResolver
 
         $category = $categoryCollection->getFirstItem();
 
-        return $category->getUrl();
+        return $category;
     }
 }
