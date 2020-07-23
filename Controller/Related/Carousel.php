@@ -54,11 +54,12 @@ class Carousel extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $relatedProductIds = $this->getRelatedProductIds();
-        $category = $this->getCategory($relatedProductIds);
+        $category = null;
         $data = [];
 
         if (!empty($relatedProductIds)) {
             $data['product_ids'] = implode(',', $relatedProductIds);
+            $category = $this->getCategory($relatedProductIds);
         }
 
         $resultPage = $this->pageFactory->create();
