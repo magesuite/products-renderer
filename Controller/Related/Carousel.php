@@ -98,12 +98,12 @@ class Carousel extends \Magento\Framework\App\Action\Action
         }
 
         $productId = reset($productIds);
-        $catagory = $this->productCategoryResolver->getCategory($productId);
+        $category = $this->productCategoryResolver->getCategory($productId);
 
-        if ($catagory) {
+        if ($category) {
             return [
-                'url' => $catagory->getUrl(),
-                'name' => $catagory->getName()
+                'url' => $category->getUrl(),
+                'name' => $category->getName()
             ];
         }
 
