@@ -55,7 +55,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
     {
         $relatedProductIds = $this->getRelatedProductIds();
         $category = null;
-        $data = [];
+        $data = ['product_ids' => null];
 
         if (!empty($relatedProductIds)) {
             $data['product_ids'] = implode(',', $relatedProductIds);
