@@ -9,10 +9,17 @@ class ProductCategoryResolver
      */
     protected $categoryCollectionFactory;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
     public function __construct(
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
+        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -31,19 +38,26 @@ class ProductCategoryResolver
             $categoryCollection->setStoreId($storeId);
         }
 
-        $categoryCollection->getSelect()->joinInner(
-            ['ccp' => $categoryCollection->getTable('catalog_category_product')],
-            'ccp.category_id = e.entity_id',
-            []
-        )->where('ccp.product_id = ?', (int)$productId
-        )->limit(1);
+        $categoryCollection->getSelect()
+            ->joinInner(
+                ['ccp' => $categoryCollection->getTable('catalog_category_product')],
+                'ccp.category_id = e.entity_id',
+                []
+            )
+            ->where('ccp.product_id = ?', (int)$productId);
 
         if (!$categoryCollection->count()) {
             return null;
         }
 
-        $category = $categoryCollection->getFirstItem();
+        $rootCategoryId = $this->storeManager->getStore()->getRootCategoryId();
 
-        return $category;
+        foreach ($categoryCollection as $category) {
+            if ($category->getId() != $rootCategoryId) {
+                return $category;
+            }
+        }
+
+        return null;
     }
 }
