@@ -2,7 +2,7 @@
 
 namespace MageSuite\ProductsRenderer\Controller\Recommendation;
 
-class Carousel extends \Magento\Framework\App\Action\Action
+class Grid extends \Magento\Framework\App\Action\Action
 {
     /**
      * @var \Magento\Framework\App\Action\Context
@@ -41,12 +41,33 @@ class Carousel extends \Magento\Framework\App\Action\Action
         $params = $this->getRequest()->getParams();
 
         $data = [];
+        $data['useTeaser'] = '';
+        $data['rows_desktop'] = '1';
+        $data['rows_mobile'] = '4';
+        $data['rows_tablet'] = '2';
+
         if (isset($params['id'])) {
             $data['product_ids'] = $params['id'];
         }
 
         if (isset($params['skus'])) {
             $data['skus'] = implode(',', $params['skus']);
+        }
+
+        if (isset($params['rows_desktop'])) {
+            $data['rows_desktop'] = $params['rows_desktop'];
+        }
+
+        if (isset($params['rows_tablet'])) {
+            $data['rows_tablet'] = $params['rows_tablet'];
+        }
+
+        if (isset($params['rows_mobile'])) {
+            $data['rows_mobile'] = $params['rows_mobile'];
+        }
+
+        if (isset($params['limit'])) {
+            $data['limit'] = $params['limit'];
         }
 
         $resultPage = $this->pageFactory->create();
@@ -58,7 +79,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
                 '',
                 [
                     'data' => [
-                        'type' => 'product-carousel',
+                        'type' => 'product-grid',
                         'data' => $data
                     ]
                 ]
