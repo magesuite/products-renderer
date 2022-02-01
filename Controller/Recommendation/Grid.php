@@ -70,6 +70,8 @@ class Grid extends \Magento\Framework\App\Action\Action
             $data['limit'] = $params['limit'];
         }
 
+        $data['collection_type'] = \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE;
+
         $resultPage = $this->pageFactory->create();
 
         $component = $resultPage
