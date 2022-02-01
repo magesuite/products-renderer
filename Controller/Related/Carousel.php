@@ -62,6 +62,8 @@ class Carousel extends \Magento\Framework\App\Action\Action
             $category = $this->getCategory($relatedProductIds);
         }
 
+        $data['collection_type'] = \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE;
+
         $resultPage = $this->pageFactory->create();
         $component = $resultPage
             ->getLayout()

@@ -49,6 +49,8 @@ class Carousel extends \Magento\Framework\App\Action\Action
             $data['skus'] = implode(',', $params['skus']);
         }
 
+        $data['collection_type'] = \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE;
+
         $resultPage = $this->pageFactory->create();
 
         $component = $resultPage
