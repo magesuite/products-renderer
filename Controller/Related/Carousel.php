@@ -53,7 +53,12 @@ class Carousel extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        $resultJson = $this->jsonFactory->create();
         $relatedProductIds = $this->getRelatedProductIds();
+
+        if (empty($relatedProductIds)) {
+            return $resultJson->setData(['content' => '', 'category' => []]);
+        }
         $category = null;
         $data = ['product_ids' => null];
 
@@ -78,7 +83,6 @@ class Carousel extends \Magento\Framework\App\Action\Action
                 ]
             )
             ->toHtml();
-        $resultJson = $this->jsonFactory->create();
 
         return $resultJson->setData(['content' => $component, 'category' => $category]);
     }

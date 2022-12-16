@@ -1,0 +1,21 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:MageSuite_Changelog:etc/changelog.xsd">
+    <module
+        id="MageSuite_ProductsRenderer"
+        name="MageSuite_ProductsRenderer"
+        description="This is extension for rendereing product carousels based on defined criteria - useful for recommendations, cross-sells, etc."
+        url="https://github.com/magesuite/products-renderer">
+        <changelog>
+            <tag version="2.2.2" date="2022-05-17">
+                <entry>
+                    <type>FEATURE</type>
+                    <overview>Added changelog file.</overview>
+                </entry>
+                <entry>
+                    <type>PERFORMANCE</type>
+                    <overview>Carousel is now not rendered when no products for crossells/upsells are returned. Previously all products have been rendered.</overview>
+                </entry>
+            </tag>
+        </changelog>
+    </module>
+</config>
