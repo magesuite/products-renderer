@@ -1,6 +1,6 @@
 {
   "name": "creativestyle/magesuite-products-renderer",
-  "description": "MageSuite Products Renderer",
+  "description": "The module provides an endpoint returning data (products) for the product carousel.",
   "homepage": "https://creativestyle.de",
   "license": "OSL-3.0",
   "type": "magento2-module",
