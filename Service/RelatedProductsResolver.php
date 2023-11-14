@@ -34,7 +34,7 @@ class RelatedProductsResolver
         }
 
         $storeId = $this->storeManager->getStore()->getId();
-        
+
         try {
             return $this->productRepository->getById($productId, false, $storeId);
         } catch (NoSuchEntityException $e) {
