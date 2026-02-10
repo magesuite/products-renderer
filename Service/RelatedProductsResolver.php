@@ -37,7 +37,7 @@ class RelatedProductsResolver
 
         try {
             return $this->productRepository->getById($productId, false, $storeId);
-        } catch (NoSuchEntityException $e) {
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             return false;
         }
     }

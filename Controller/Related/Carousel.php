@@ -89,7 +89,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
 
     protected function getRelatedProductIds()
     {
-        $id = (string)$this->getRequest()->getParam('id');
+        $id = (int)$this->getRequest()->getParam('id');
         $relationType = (string)$this->getRequest()->getParam('relation_type');
 
         return $this->relatedProductsResolver->getRelatedProductIds(
