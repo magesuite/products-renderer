@@ -1,57 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\ProductsRenderer\Controller\Related;
 
-class Carousel extends \Magento\Framework\App\Action\Action
+class Carousel implements \Magento\Framework\App\Action\HttpGetActionInterface
 {
-    /**
-     * @var \Magento\Framework\App\Action\Context
-     */
-    protected $context;
-
-    /**
-     * @var \Magento\Framework\View\Result\PageFactory
-     */
-    protected $pageFactory;
-
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $jsonFactory;
-
-    /**
-     * @var \MageSuite\ProductsRenderer\Service\RelatedProductsResolver
-     */
-    protected $relatedProductsResolver;
-
-    /**
-     * @var \MageSuite\ProductsRenderer\Service\ProductCategoryResolver
-     */
-    protected $productCategoryResolver;
-
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver,
-        \MageSuite\ProductsRenderer\Service\ProductCategoryResolver $productCategoryResolver
-    ) {
-        parent::__construct($context);
+        protected \MageSuite\ProductsRenderer\Helper\Configuration $configuration,
+        protected \MageSuite\ProductsRenderer\Service\RelatedProductsResolver $relatedProductsResolver,
+        protected \MageSuite\ProductsRenderer\Service\ProductCategoryResolver $productCategoryResolver,
+        protected \Magento\Framework\App\RequestInterface $request,
+        protected \Magento\Framework\View\Result\PageFactory $pageFactory,
+        protected \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
+    ) {}
 
-        $this->context = $context;
-        $this->pageFactory = $pageFactory;
-        $this->jsonFactory = $jsonFactory;
-        $this->relatedProductsResolver = $relatedProductsResolver;
-        $this->productCategoryResolver = $productCategoryResolver;
-    }
-
-    /**
-     * Action renders product carousel based on provided skus
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
-    public function execute()
+    public function execute(): \Magento\Framework\Controller\ResultInterface
     {
         $resultJson = $this->jsonFactory->create();
         $relatedProductIds = $this->getRelatedProductIds();
@@ -59,6 +23,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
         if (empty($relatedProductIds)) {
             return $resultJson->setData(['content' => '', 'category' => []]);
         }
+
         $category = null;
         $data = ['product_ids' => null];
 
@@ -67,6 +32,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
             $category = $this->getCategory($relatedProductIds);
         }
 
+        $data['limit'] = $this->configuration->getProductLimit();
         $data['collection_type'] = \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE;
 
         $resultPage = $this->pageFactory->create();
@@ -87,10 +53,10 @@ class Carousel extends \Magento\Framework\App\Action\Action
         return $resultJson->setData(['content' => $component, 'category' => $category]);
     }
 
-    protected function getRelatedProductIds()
+    protected function getRelatedProductIds(): ?array
     {
-        $id = (int)$this->getRequest()->getParam('id');
-        $relationType = (string)$this->getRequest()->getParam('relation_type');
+        $id = (int)$this->request->getParam('id');
+        $relationType = (string)$this->request->getParam('relation_type');
 
         return $this->relatedProductsResolver->getRelatedProductIds(
             $id,
@@ -98,7 +64,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
         );
     }
 
-    protected function getCategory(array $productIds)
+    protected function getCategory(array $productIds): ?array
     {
         if (empty($productIds)) {
             return null;
