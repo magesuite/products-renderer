@@ -1,46 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\ProductsRenderer\Controller\Recommendation;
 
-class Carousel extends \Magento\Framework\App\Action\Action
+class Carousel implements \Magento\Framework\App\Action\HttpGetActionInterface
 {
-    /**
-     * @var \Magento\Framework\App\Action\Context
-     */
-    protected $context;
-
-    /**
-     * @var \Magento\Framework\View\Result\PageFactory
-     */
-    protected $pageFactory;
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $jsonFactory;
-
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
-    ) {
-        parent::__construct($context);
+        protected \MageSuite\ProductsRenderer\Helper\Configuration $configuration,
+        protected \Magento\Framework\App\RequestInterface $request,
+        protected \Magento\Framework\View\Result\PageFactory $pageFactory,
+        protected \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
+    ) {}
 
-        $this->context = $context;
-        $this->pageFactory = $pageFactory;
-        $this->jsonFactory = $jsonFactory;
-    }
-
-    /**
-     * Action renders product carousel based on provided skus
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
-    public function execute()
+    public function execute(): \Magento\Framework\Controller\ResultInterface
     {
-        $params = $this->getRequest()->getParams();
+        $params = $this->request->getParams();
+        $data = [
+            'limit' => $this->configuration->getProductLimit(),
+            'collection_type' => \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE
+        ];
 
-        $data = [];
         if (isset($params['id'])) {
             $data['product_ids'] = $params['id'];
         }
@@ -49,10 +29,7 @@ class Carousel extends \Magento\Framework\App\Action\Action
             $data['skus'] = implode(',', $params['skus']);
         }
 
-        $data['collection_type'] = \MageSuite\ContentConstructorFrontend\DataProviders\ProductCarouselDataProvider::COLLECTION_TYPE_DATABASE;
-
         $resultPage = $this->pageFactory->create();
-
         $component = $resultPage
             ->getLayout()
             ->createBlock(
@@ -66,8 +43,8 @@ class Carousel extends \Magento\Framework\App\Action\Action
                 ]
             )
             ->toHtml();
-
         $resultJson = $this->jsonFactory->create();
+
         return $resultJson->setData(['content' => $component]);
     }
 }
